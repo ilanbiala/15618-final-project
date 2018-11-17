@@ -63,9 +63,10 @@ public:
 
   uint64_t get(uint64_t key);
   void put(uint64_t key, uint64_t value);
-  bool remove(uint64_t key, uint64_t value);
+  bool remove(uint64_t key/*, uint64_t value*/);
   bool containsKey(uint64_t key);
-  uint64_t getSize();
+  uint64_t getSize(void);
+  void dbg_print(void);
 };
 
 #endif /* _CONCURRENT_HASHMAP_H */

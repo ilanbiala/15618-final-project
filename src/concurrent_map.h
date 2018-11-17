@@ -10,13 +10,13 @@ private:
 
 public:
   ConcurrentMap() {}
-  virtual ~ConcurrentMap() = 0;
+  // virtual ~ConcurrentMap() = 0 {};
 
-  virtual void* get(void *key) = 0;
-  virtual void put(void *key, void *value) = 0;
-  virtual bool remove(void *key, void *value) = 0;
-  virtual bool containsKey(void *key) = 0;
-  virtual uint64_t size() = 0;
+  virtual uint64_t get(uint64_t key) = 0;
+  virtual void put(uint64_t key, uint64_t value) = 0;
+  virtual bool remove(uint64_t key/*, uint64_t value*/) = 0;
+  virtual bool containsKey(uint64_t key) = 0;
+  virtual uint64_t getSize() = 0;
 };
 
 #endif /* _CONCURRENT_MAP_H */
