@@ -1,6 +1,7 @@
-# Lock-free, Concurrent, Generic Maps Progres Update (Ilan Biala and Varun Sharma)
+# Lock-free, Concurrent, Generic Maps Progress Update (Ilan Biala and Varun Sharma)
 
 URL: [https://ilanbiala.github.io/15618-final-project/](https://ilanbiala.github.io/15618-final-project/)
+
 
 Original Proposal URL: [https://ilanbiala.github.io/15618-final-project/proposal](https://ilanbiala.github.io/15618-final-project/proposal)
 
