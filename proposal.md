@@ -1,6 +1,7 @@
 # Lock-free, Concurrent, Generic Maps Proposal (Ilan Biala and Varun Sharma)
 
 Main Page URL: [https://ilanbiala.github.io/15618-final-project/](https://ilanbiala.github.io/15618-final-project/)
+
 Proposal URL: [https://ilanbiala.github.io/15618-final-project/proposal](https://ilanbiala.github.io/15618-final-project/proposal)
 
 ## Summary
