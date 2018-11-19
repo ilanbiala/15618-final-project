@@ -125,7 +125,7 @@ uint64_t ConcurrentHashMapBucketLock::getSize(void) {
 }
 
 void ConcurrentHashMapBucketLock::dbg_print(void) {
-  printf("Printing out current state of HashMap:\n");
+  printf("Printing out current state of HashMap (%llu elements, %llu buckets):\n", this->size, this->numBuckets);
   printf("{\n");
 
   for (auto const& bucket: buckets) {
