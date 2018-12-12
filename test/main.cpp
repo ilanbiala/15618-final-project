@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <stdint.h>
+#include <assert.h>
+#include <stdlib.h>
 
 #include "concurrent_hashmap.h"
 
@@ -10,10 +12,10 @@ void test_distinct_put_get(uint64_t numBuckets) {
 
   for (int iter = 0; iter < 2; iter++) {
     for (uint64_t i = 0; i < 50; i++) {
-      printf("Inserting (%llu, %llu)\n", i, i + 50);
+      printf("Inserting (%lu, %lu)\n", i, i + 50);
       map.put(i, i + 50);
       assert(i + 50 == map.get(i));
-      printf("Inserted (%llu, %llu)\n", i, i + 50);
+      printf("Inserted (%lu, %lu)\n", i, i + 50);
       assert(map.getSize() == i + 1);
     }
 
@@ -21,13 +23,13 @@ void test_distinct_put_get(uint64_t numBuckets) {
 
     for (uint64_t i = 0; i < 50; i++) {
       assert(map.getSize() == 50 - i);
-      printf("Getting (%llu, value)\n", i);
+      printf("Getting (%lu, value)\n", i);
       assert(map.containsKey(i));
       uint64_t value = map.get(i);
       assert(value == i + 50);
-      printf("Got (%llu, %llu)\n", i, value);
+      printf("Got (%lu, %lu)\n", i, value);
       assert(map.remove(i) == true);
-      printf("Removed (%llu, %llu)\n", i, value);
+      printf("Removed (%lu, %lu)\n", i, value);
       assert(!map.containsKey(i));
     }
   }
@@ -42,9 +44,9 @@ void test_same_put_get(uint64_t numBuckets) {
 
   for (int iter = 0; iter < 2; iter++) {
     for (uint64_t i = 0; i < 50; i++) {
-      printf("Inserting (%llu, %llu)\n", 0ULL, i);
-      map.put(0ULL, i);
-      printf("Inserted (%llu, %llu)\n", 0ULL, i);
+      printf("Inserting (%lu, %lu)\n", 0UL, i);
+      map.put(0, i);
+      printf("Inserted (%lu, %lu)\n", 0UL, i);
       assert(map.getSize() == 1);
     }
 
@@ -53,13 +55,13 @@ void test_same_put_get(uint64_t numBuckets) {
     for (uint64_t i = 0; i < 50; i++) {
       if (i == 0) {
         assert(map.getSize() == 1);
-        printf("Getting (%llu, value)\n", i);
+        printf("Getting (%lu, value)\n", i);
         assert(map.containsKey(i));
         uint64_t value = map.get(i);
-        assert(value == 49ULL);
-        printf("Got (%llu, %llu)\n", i, value);
+        assert(value == 49);
+        printf("Got (%lu, %lu)\n", i, value);
         assert(map.remove(i) == true);
-        printf("Removed (%llu, %llu)\n", i, value);
+        printf("Removed (%lu, %lu)\n", i, value);
       }
 
       assert(map.getSize() == 0);
@@ -67,7 +69,7 @@ void test_same_put_get(uint64_t numBuckets) {
     }
   }
 
-  printf("%s passed!", __FUNCTION__);
+  printf("%s passed!\n", __FUNCTION__);
 }
 
 int main(int argc, char const *argv[])
@@ -78,7 +80,7 @@ int main(int argc, char const *argv[])
   }
 
   printf("%d, %s\n", argc, argv[0]);
-  printf("numBuckets=%llu\n", numBuckets);
+  printf("numBuckets=%lu\n", numBuckets);
 
   test_distinct_put_get(numBuckets);
   test_same_put_get(numBuckets);

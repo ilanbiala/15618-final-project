@@ -1,7 +1,7 @@
 #ifndef _CONCURRENT_HASHMAP_H
 #define _CONCURRENT_HASHMAP_H
 
-#include <pthread/pthread.h>
+#include <pthread.h>
 #include <stdint.h>
 #include <vector>
 

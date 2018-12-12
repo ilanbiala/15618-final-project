@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdexcept>
+
 
 #include "concurrent_map.h"
 #include "concurrent_hashmap.h"
@@ -125,14 +127,14 @@ uint64_t ConcurrentHashMapBucketLock::getSize(void) {
 }
 
 void ConcurrentHashMapBucketLock::dbg_print(void) {
-  printf("Printing out current state of HashMap (%llu elements, %llu buckets):\n", this->size, this->numBuckets);
+  printf("Printing out current state of HashMap (%lu elements, %lu buckets):\n", this->size, this->numBuckets);
   printf("{\n");
 
   for (auto const& bucket: buckets) {
     if (bucket != NULL) {
       printf("\tBUCKET: ");
       for (Node *curr = bucket; curr != NULL; curr = curr->getNext()) {
-        printf("(%llu, %llu);\t", curr->getKey(), curr->getValue());
+        printf("(%lu, %lu);\t", curr->getKey(), curr->getValue());
       }
       printf("\n");
     } else {
