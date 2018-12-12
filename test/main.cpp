@@ -4,10 +4,10 @@
 #include <stdlib.h>
 
 #include "concurrent_hashmap.h"
+#include "concurrent_tm_hashmap.h"
 
-void test_distinct_put_get(uint64_t numBuckets) {
-  ConcurrentHashMapBucketLock map = ConcurrentHashMapBucketLock(numBuckets);
 
+void test_distinct_put_get(ConcurrentMap& map) {
   map.dbg_print();
 
   for (int iter = 0; iter < 2; iter++) {
@@ -37,8 +37,7 @@ void test_distinct_put_get(uint64_t numBuckets) {
   printf("%s passed!\n", __FUNCTION__);
 }
 
-void test_same_put_get(uint64_t numBuckets) {
-  ConcurrentHashMapBucketLock map = ConcurrentHashMapBucketLock(numBuckets);
+void test_same_put_get(ConcurrentMap& map) {
 
   map.dbg_print();
 
@@ -82,8 +81,18 @@ int main(int argc, char const *argv[])
   printf("%d, %s\n", argc, argv[0]);
   printf("numBuckets=%lu\n", numBuckets);
 
-  test_distinct_put_get(numBuckets);
-  test_same_put_get(numBuckets);
+  ConcurrentHashMapBucketLock map1 = ConcurrentHashMapBucketLock(numBuckets);
+  ConcurrentHashMapBucketLock map2 = ConcurrentHashMapBucketLock(numBuckets);
+  ConcurrentHashMapTransactionalMemory map3 = ConcurrentHashMapTransactionalMemory(numBuckets);
+  ConcurrentHashMapTransactionalMemory map4 = ConcurrentHashMapTransactionalMemory(numBuckets);
+
+
+  // test_distinct_put_get(map1);
+  // test_same_put_get(map2);
+
+  test_distinct_put_get(map3);
+  test_same_put_get(map4);
+
 
   return 0;
 }

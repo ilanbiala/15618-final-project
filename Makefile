@@ -1,5 +1,5 @@
 CXX      := g++
-CXXFLAGS := -std=c++11 -pedantic-errors -Wall -Wextra -Werror -mrtm
+CXXFLAGS := -std=c++11 -pedantic-errors -Wall -Wextra -Werror -mrtm -g
 LDFLAGS  :=
 BUILD    := ./build
 TEST_DIR  := $(BUILD)/tests
@@ -22,7 +22,7 @@ $(OBJ_DIR)/%.o: %.cpp
 
 $(TEST_DIR)/main: $(OBJECTS) $(TEST)
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -I $(INCLUDE) $(LDFLAGS) -o $(TEST_DIR)/main test/main.cpp src/concurrent_hashmap.cpp #$(OBJECTS)#
+	$(CXX) $(CXXFLAGS) -I $(INCLUDE) $(LDFLAGS) -o $(TEST_DIR)/main test/main.cpp src/concurrent_hashmap.cpp src/concurrent_tm_hashmap.cpp src/sequential_hashmap.cpp #$(OBJECTS)#
 
 .PHONY: build clean debug release
 

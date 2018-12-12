@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 #include "concurrent_map.h"
-#include "concurrent_hashmap.h"
+#include "sequential_hashmap.h"
 
 // uint64_t hash(uint64_t key) {
 //   uint64_t hashVal = key;
@@ -14,39 +14,38 @@
 //   return hashVal;
 // }
 
-ConcurrentHashMapBucketLock::ConcurrentHashMapBucketLock(uint64_t numBuckets)
+SequentialHashMap::SequentialHashMap(uint64_t numBuckets)
 {
   this->numBuckets = numBuckets;
   this->size = 0;
   buckets = std::vector<Node*>(numBuckets);
-  bucketMutexes = std::vector<pthread_mutex_t>(numBuckets);
 }
 
-ConcurrentHashMapBucketLock::~ConcurrentHashMapBucketLock()
+SequentialHashMap::~SequentialHashMap()
 {
 }
 
-uint64_t ConcurrentHashMapBucketLock::get(uint64_t key) {
+uint64_t SequentialHashMap::get(uint64_t key) {
   uint64_t bucketIdx = hash(key) % this->numBuckets;
 
-  pthread_mutex_lock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_lock(&mux);
 
   for (Node *curr = buckets[bucketIdx]; curr != NULL; curr = curr->getNext()) {
     if (curr->getKey() == key) {
       uint64_t val = curr->getValue();
-      pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+      pthread_mutex_unlock(&mux);
       return val;
     }
   }
 
-  pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_unlock(&mux);
   throw std::out_of_range ("key not found");
 }
 
-void ConcurrentHashMapBucketLock::put(uint64_t key, uint64_t value) {
+void SequentialHashMap::put(uint64_t key, uint64_t value) {
   uint64_t bucketIdx = hash(key) % this->numBuckets;
 
-  pthread_mutex_lock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_lock(&mux);
 
 // need to check existance of key and overwrite if exists
 // we should change api to return old value if overwritten
@@ -60,31 +59,31 @@ void ConcurrentHashMapBucketLock::put(uint64_t key, uint64_t value) {
   for (Node *curr = buckets[bucketIdx]; curr != NULL; curr = curr->getNext()) {
     if (curr->getKey() == key) {
       curr->setValue(value);
-      pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+      pthread_mutex_unlock(&mux);
       return;
     }
   }
 
-  Node *newItem = new ConcurrentHashMapBucketLock::Node(key, value, buckets[bucketIdx]);
+  Node *newItem = new SequentialHashMap::Node(key, value, buckets[bucketIdx]);
   buckets[bucketIdx] = newItem;
   this->size++;
 
-  pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_unlock(&mux);
 }
 
-bool ConcurrentHashMapBucketLock::remove(uint64_t key/*, uint64_t value*/) {
+bool SequentialHashMap::remove(uint64_t key/*, uint64_t value*/) {
   uint64_t bucketIdx = hash(key) % this->numBuckets;
 
-  pthread_mutex_lock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_lock(&mux);
 
   Node *last = buckets[bucketIdx];
   if (last == nullptr) {
-    pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+    pthread_mutex_unlock(&mux);
     return false;
   }
   if (last->getKey() == key) {
     buckets[bucketIdx] = last->getNext();
-    pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+    pthread_mutex_unlock(&mux);
     delete last;
     this->size--;
     return true;
@@ -93,7 +92,7 @@ bool ConcurrentHashMapBucketLock::remove(uint64_t key/*, uint64_t value*/) {
   for (Node *curr = last->getNext(); curr != NULL; curr = curr->getNext()) {
     if (curr->getKey() == key) {
       last->setNext(curr->getNext());
-      pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+      pthread_mutex_unlock(&mux);
       delete curr;
       this->size--;
       return true;
@@ -101,31 +100,31 @@ bool ConcurrentHashMapBucketLock::remove(uint64_t key/*, uint64_t value*/) {
     last = curr;
   }
 
-  pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_unlock(&mux);
   return false;
 }
 
-bool ConcurrentHashMapBucketLock::containsKey(uint64_t key) {
+bool SequentialHashMap::containsKey(uint64_t key) {
   uint64_t bucketIdx = hash(key) % this->numBuckets;
 
-  pthread_mutex_lock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_lock(&mux);
 
   for (Node *curr = buckets[bucketIdx]; curr != NULL; curr = curr->getNext()) {
     if (curr->getKey() == key) {
-      pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+      pthread_mutex_unlock(&mux);
       return true;
     }
   }
 
-  pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_unlock(&mux);
   return false;
 }
 
-uint64_t ConcurrentHashMapBucketLock::getSize(void) {
+uint64_t SequentialHashMap::getSize(void) {
   return size;
 }
 
-void ConcurrentHashMapBucketLock::dbg_print(void) {
+void SequentialHashMap::dbg_print(void) {
   printf("Printing out current state of HashMap (%lu elements, %lu buckets):\n", this->size, this->numBuckets);
   printf("{\n");
 
