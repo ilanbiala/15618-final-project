@@ -56,6 +56,7 @@ private:
   uint64_t size;
   std::vector<Node*> buckets;
   std::vector<pthread_mutex_t> bucketMutexes;
+  pthread_mutex_t mux;
 
 public:
   ConcurrentHashMapBucketLock(uint64_t numBuckets);

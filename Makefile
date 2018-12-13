@@ -1,6 +1,6 @@
 CXX      := g++
 CXXFLAGS := -std=c++11 -pedantic-errors -Wall -Wextra -Werror -mrtm -g
-LDFLAGS  := -lbenchmark -lpthread
+LDFLAGS  := -lbenchmark -lpthread -pthread
 BUILD    := ./build
 TEST_DIR  := $(BUILD)/tests
 BENCH_DIR  := $(BUILD)/bench
@@ -25,11 +25,11 @@ $(OBJ_DIR)/%.o: %.cpp
 
 $(TEST_DIR)/main: $(OBJECTS) $(TEST)
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -I $(INCLUDE) $(LDFLAGS) -o $(TEST_DIR)/main test/main.cpp src/concurrent_hashmap.cpp src/concurrent_tm_hashmap.cpp src/sequential_hashmap.cpp #$(OBJECTS)#
+	$(CXX) $(CXXFLAGS) -I $(INCLUDE) -o $(TEST_DIR)/main test/main.cpp src/concurrent_hashmap.cpp src/concurrent_tm_hashmap.cpp src/sequential_hashmap.cpp $(LDFLAGS)
 
 $(BENCH_DIR)/main: $(OBJECTS) $(BENCH)
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -L benchmark/build/src/ -I $(INCLUDE) $(LDFLAGS) -o $(BENCH_DIR)/main bench/main.cpp src/concurrent_hashmap.cpp #$(OBJECTS)#
+	$(CXX) $(CXXFLAGS) -L benchmark/build/src/ -L /usr/local/lib/ -I $(INCLUDE) -I /usr/local/include -o $(BENCH_DIR)/main bench/main.cpp src/concurrent_hashmap.cpp src/concurrent_tm_hashmap.cpp src/sequential_hashmap.cpp $(LDFLAGS)
 
 .PHONY: build clean debug release
 

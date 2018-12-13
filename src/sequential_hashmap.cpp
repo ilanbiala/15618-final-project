@@ -19,6 +19,7 @@ SequentialHashMap::SequentialHashMap(uint64_t numBuckets)
   this->numBuckets = numBuckets;
   this->size = 0;
   buckets = std::vector<Node*>(numBuckets);
+  pthread_mutex_init(&mux, NULL);
 }
 
 SequentialHashMap::~SequentialHashMap()
@@ -39,6 +40,8 @@ uint64_t SequentialHashMap::get(uint64_t key) {
   }
 
   pthread_mutex_unlock(&mux);
+  this->dbg_print();
+  printf("ERROR: Not found key=%lu\n", key);
   throw std::out_of_range ("key not found");
 }
 
@@ -60,6 +63,7 @@ void SequentialHashMap::put(uint64_t key, uint64_t value) {
     if (curr->getKey() == key) {
       curr->setValue(value);
       pthread_mutex_unlock(&mux);
+      // printf("IN HERE, key=%lu!\n", key);
       return;
     }
   }
@@ -83,18 +87,19 @@ bool SequentialHashMap::remove(uint64_t key/*, uint64_t value*/) {
   }
   if (last->getKey() == key) {
     buckets[bucketIdx] = last->getNext();
-    pthread_mutex_unlock(&mux);
     delete last;
     this->size--;
+    pthread_mutex_unlock(&mux);
     return true;
   }
 
   for (Node *curr = last->getNext(); curr != NULL; curr = curr->getNext()) {
     if (curr->getKey() == key) {
       last->setNext(curr->getNext());
-      pthread_mutex_unlock(&mux);
       delete curr;
       this->size--;
+      pthread_mutex_unlock(&mux);
+
       return true;
     }
     last = curr;
@@ -127,18 +132,25 @@ uint64_t SequentialHashMap::getSize(void) {
 void SequentialHashMap::dbg_print(void) {
   printf("Printing out current state of HashMap (%lu elements, %lu buckets):\n", this->size, this->numBuckets);
   printf("{\n");
+  pthread_mutex_lock(&mux);
 
-  for (auto const& bucket: buckets) {
+  for (unsigned long i = 0; i < buckets.size(); i++) {
+      Node* bucket = buckets[i];
+
+  // for (auto const& bucket: buckets) {
     if (bucket != NULL) {
-      printf("\tBUCKET: ");
+      printf("\tBUCKET%lu: ",i);
       for (Node *curr = bucket; curr != NULL; curr = curr->getNext()) {
         printf("(%lu, %lu);\t", curr->getKey(), curr->getValue());
       }
       printf("\n");
     } else {
-      printf("\tBUCKET: EMPTY\n");
+      printf("\tBUCKET%lu: EMPTY\n", i);
     }
   }
 
+  pthread_mutex_unlock(&mux);
+
   printf("}\n");
+
 }

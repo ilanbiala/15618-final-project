@@ -20,6 +20,7 @@ ConcurrentHashMapTransactionalMemory::ConcurrentHashMapTransactionalMemory(uint6
   this->size = 0;
   buckets = std::vector<Node*>(numBuckets);
   bucketMutexes = std::vector<int>(numBuckets);
+  pthread_mutex_init(&mux, NULL);
 }
 
 ConcurrentHashMapTransactionalMemory::~ConcurrentHashMapTransactionalMemory()
@@ -67,9 +68,10 @@ void ConcurrentHashMapTransactionalMemory::put(uint64_t key, uint64_t value) {
 
   Node *newItem = new ConcurrentHashMapTransactionalMemory::Node(key, value, buckets[bucketIdx]);
   buckets[bucketIdx] = newItem;
-  this->size++;
-
   hle_unlock(&bucketMutexes[bucketIdx]);
+  pthread_mutex_lock(&mux);
+  this->size++;
+  pthread_mutex_unlock(&mux);
 }
 
 bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key/*, uint64_t value*/) {
@@ -86,7 +88,10 @@ bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key/*, uint64_t value
     buckets[bucketIdx] = last->getNext();
     hle_unlock(&bucketMutexes[bucketIdx]);
     delete last;
+    pthread_mutex_lock(&mux);
     this->size--;
+    pthread_mutex_unlock(&mux);
+
     return true;
   }
 
@@ -95,7 +100,9 @@ bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key/*, uint64_t value
       last->setNext(curr->getNext());
       hle_unlock(&bucketMutexes[bucketIdx]);
       delete curr;
+      pthread_mutex_lock(&mux);
       this->size--;
+      pthread_mutex_unlock(&mux);
       return true;
     }
     last = curr;

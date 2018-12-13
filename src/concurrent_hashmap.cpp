@@ -20,6 +20,7 @@ ConcurrentHashMapBucketLock::ConcurrentHashMapBucketLock(uint64_t numBuckets)
   this->size = 0;
   buckets = std::vector<Node*>(numBuckets);
   bucketMutexes = std::vector<pthread_mutex_t>(numBuckets);
+  pthread_mutex_init(&mux, NULL);
 }
 
 ConcurrentHashMapBucketLock::~ConcurrentHashMapBucketLock()
@@ -67,9 +68,11 @@ void ConcurrentHashMapBucketLock::put(uint64_t key, uint64_t value) {
 
   Node *newItem = new ConcurrentHashMapBucketLock::Node(key, value, buckets[bucketIdx]);
   buckets[bucketIdx] = newItem;
-  this->size++;
-
   pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
+
+  pthread_mutex_lock(&mux);
+  this->size++;
+  pthread_mutex_unlock(&mux);
 }
 
 bool ConcurrentHashMapBucketLock::remove(uint64_t key/*, uint64_t value*/) {
@@ -86,7 +89,9 @@ bool ConcurrentHashMapBucketLock::remove(uint64_t key/*, uint64_t value*/) {
     buckets[bucketIdx] = last->getNext();
     pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
     delete last;
+    pthread_mutex_lock(&mux);
     this->size--;
+    pthread_mutex_unlock(&mux);
     return true;
   }
 
@@ -95,7 +100,9 @@ bool ConcurrentHashMapBucketLock::remove(uint64_t key/*, uint64_t value*/) {
       last->setNext(curr->getNext());
       pthread_mutex_unlock(&bucketMutexes[bucketIdx]);
       delete curr;
+      pthread_mutex_lock(&mux);
       this->size--;
+      pthread_mutex_unlock(&mux);
       return true;
     }
     last = curr;
