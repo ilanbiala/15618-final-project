@@ -63,6 +63,7 @@ private:
   uint64_t size;
   std::vector<Node*> buckets;
   std::vector<int> bucketMutexes;
+  pthread_mutex_t mux;
 
 public:
   ConcurrentHashMapTransactionalMemory(uint64_t numBuckets);
@@ -70,7 +71,7 @@ public:
 
   uint64_t get(uint64_t key);
   void put(uint64_t key, uint64_t value);
-  bool remove(uint64_t key/*, uint64_t value*/);
+  bool remove(uint64_t key);
   bool containsKey(uint64_t key);
   uint64_t getSize(void);
   void dbg_print(void);
