@@ -4,16 +4,6 @@
 #include "concurrent_map.h"
 #include "sequential_hashmap.h"
 
-// uint64_t hash(uint64_t key) {
-//   uint64_t hashVal = key;
-
-//   hashVal = (hashVal ^ (hashVal >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
-//   hashVal = (hashVal ^ (hashVal >> 27)) * UINT64_C(0x94d049bb133111eb);
-//   hashVal = hashVal ^ (hashVal >> 31);
-
-//   return hashVal;
-// }
-
 SequentialHashMap::SequentialHashMap(uint64_t numBuckets)
 {
   this->numBuckets = numBuckets;
@@ -50,20 +40,10 @@ void SequentialHashMap::put(uint64_t key, uint64_t value) {
 
   pthread_mutex_lock(&mux);
 
-// need to check existance of key and overwrite if exists
-// we should change api to return old value if overwritten
-
-  // if (buckets[bucketIdx] == NULL) {
-  //   buckets[bucketIdx] = &Node(value, NULL);
-  // } else {
-  //   Node newItem = Node(value, buckets[bucketIdx]);
-  //   buckets[bucketIdx] = &newItem;
-  // }
   for (Node *curr = buckets[bucketIdx]; curr != NULL; curr = curr->getNext()) {
     if (curr->getKey() == key) {
       curr->setValue(value);
       pthread_mutex_unlock(&mux);
-      // printf("IN HERE, key=%lu!\n", key);
       return;
     }
   }
@@ -75,7 +55,7 @@ void SequentialHashMap::put(uint64_t key, uint64_t value) {
   pthread_mutex_unlock(&mux);
 }
 
-bool SequentialHashMap::remove(uint64_t key/*, uint64_t value*/) {
+bool SequentialHashMap::remove(uint64_t key) {
   uint64_t bucketIdx = hash(key) % this->numBuckets;
 
   pthread_mutex_lock(&mux);
@@ -137,7 +117,6 @@ void SequentialHashMap::dbg_print(void) {
   for (unsigned long i = 0; i < buckets.size(); i++) {
       Node* bucket = buckets[i];
 
-  // for (auto const& bucket: buckets) {
     if (bucket != NULL) {
       printf("\tBUCKET%lu: ",i);
       for (Node *curr = bucket; curr != NULL; curr = curr->getNext()) {
@@ -152,5 +131,4 @@ void SequentialHashMap::dbg_print(void) {
   pthread_mutex_unlock(&mux);
 
   printf("}\n");
-
 }

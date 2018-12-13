@@ -4,22 +4,15 @@
 #include "concurrent_map.h"
 #include "concurrent_tm_hashmap.h"
 
-// uint64_t hash(uint64_t key) {
-//   uint64_t hashVal = key;
-
-//   hashVal = (hashVal ^ (hashVal >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
-//   hashVal = (hashVal ^ (hashVal >> 27)) * UINT64_C(0x94d049bb133111eb);
-//   hashVal = hashVal ^ (hashVal >> 31);
-
-//   return hashVal;
-// }
-
 ConcurrentHashMapTransactionalMemory::ConcurrentHashMapTransactionalMemory(uint64_t numBuckets)
 {
   this->numBuckets = numBuckets;
   this->size = 0;
   buckets = std::vector<Node*>(numBuckets);
   bucketMutexes = std::vector<int>(numBuckets);
+  for (size_t i = 0; i < numBuckets; i++) {
+    bucketMutexes[i] = 0;
+  }
   pthread_mutex_init(&mux, NULL);
 }
 
@@ -49,15 +42,6 @@ void ConcurrentHashMapTransactionalMemory::put(uint64_t key, uint64_t value) {
 
   hle_lock(&bucketMutexes[bucketIdx]);
 
-// need to check existance of key and overwrite if exists
-// we should change api to return old value if overwritten
-
-  // if (buckets[bucketIdx] == NULL) {
-  //   buckets[bucketIdx] = &Node(value, NULL);
-  // } else {
-  //   Node newItem = Node(value, buckets[bucketIdx]);
-  //   buckets[bucketIdx] = &newItem;
-  // }
   for (Node *curr = buckets[bucketIdx]; curr != NULL; curr = curr->getNext()) {
     if (curr->getKey() == key) {
       curr->setValue(value);
@@ -74,7 +58,7 @@ void ConcurrentHashMapTransactionalMemory::put(uint64_t key, uint64_t value) {
   pthread_mutex_unlock(&mux);
 }
 
-bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key/*, uint64_t value*/) {
+bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key) {
   uint64_t bucketIdx = hash(key) % this->numBuckets;
 
   hle_lock(&bucketMutexes[bucketIdx]);
