@@ -10,7 +10,6 @@ private:
 
 public:
   ConcurrentMap() {}
-  // virtual ~ConcurrentMap() = 0 {};
 
   uint64_t hash(uint64_t key) {
     uint64_t hashVal = key;
@@ -24,7 +23,7 @@ public:
 
   virtual uint64_t get(uint64_t key) = 0;
   virtual void put(uint64_t key, uint64_t value) = 0;
-  virtual bool remove(uint64_t key/*, uint64_t value*/) = 0;
+  virtual bool remove(uint64_t key) = 0;
   virtual bool containsKey(uint64_t key) = 0;
   virtual uint64_t getSize() = 0;
   virtual void dbg_print(void) = 0;
