@@ -17,27 +17,28 @@
 #define dbg_printf(...)
 #endif
 
+#define TEST_SIZE 10000
 
 void test_distinct_put_get(ConcurrentMap& map) {
-  map.dbg_print();
+  // map.dbg_print();
 
   for (int iter = 0; iter < 2; iter++) {
-    for (uint64_t i = 0; i < 50; i++) {
-      dbg_printf("Inserting (%lu, %lu)\n", i, i + 50);
-      map.put(i, i + 50);
-      assert(i + 50 == map.get(i));
-      dbg_printf("Inserted (%lu, %lu)\n", i, i + 50);
+    for (uint64_t i = 0; i < TEST_SIZE; i++) {
+      dbg_printf("Inserting (%lu, %lu)\n", i, i + TEST_SIZE);
+      map.put(i, i + TEST_SIZE);
+      assert(i + TEST_SIZE == map.get(i));
+      dbg_printf("Inserted (%lu, %lu)\n", i, i + TEST_SIZE);
       assert(map.getSize() == i + 1);
     }
 
-    map.dbg_print();
+    // map.dbg_print();
 
-    for (uint64_t i = 0; i < 50; i++) {
-      assert(map.getSize() == 50 - i);
+    for (uint64_t i = 0; i < TEST_SIZE; i++) {
+      assert(map.getSize() == TEST_SIZE - i);
       dbg_printf("Getting (%lu, value)\n", i);
       assert(map.containsKey(i));
       uint64_t value = map.get(i);
-      assert(value == i + 50);
+      assert(value == i + TEST_SIZE);
       dbg_printf("Got (%lu, %lu)\n", i, value);
       assert(map.remove(i) == true);
       dbg_printf("Removed (%lu, %lu)\n", i, value);
@@ -45,30 +46,30 @@ void test_distinct_put_get(ConcurrentMap& map) {
     }
   }
 
-  dbg_printf("%s passed!\n", __FUNCTION__);
+  printf("%s passed!\n", __FUNCTION__);
 }
 
 void test_same_put_get(ConcurrentMap& map) {
 
-  map.dbg_print();
+  // map.dbg_print();
 
   for (int iter = 0; iter < 2; iter++) {
-    for (uint64_t i = 0; i < 50; i++) {
+    for (uint64_t i = 0; i < TEST_SIZE; i++) {
       dbg_printf("Inserting (%lu, %lu)\n", 0UL, i);
       map.put(0, i);
       dbg_printf("Inserted (%lu, %lu)\n", 0UL, i);
       assert(map.getSize() == 1);
     }
 
-    map.dbg_print();
+    // map.dbg_print();
 
-    for (uint64_t i = 0; i < 50; i++) {
+    for (uint64_t i = 0; i < TEST_SIZE; i++) {
       if (i == 0) {
         assert(map.getSize() == 1);
         dbg_printf("Getting (%lu, value)\n", i);
         assert(map.containsKey(i));
         uint64_t value = map.get(i);
-        assert(value == 49);
+        assert(value == TEST_SIZE-1);
         dbg_printf("Got (%lu, %lu)\n", i, value);
         assert(map.remove(i) == true);
         dbg_printf("Removed (%lu, %lu)\n", i, value);
@@ -79,7 +80,7 @@ void test_same_put_get(ConcurrentMap& map) {
     }
   }
 
-  dbg_printf("%s passed!\n", __FUNCTION__);
+  printf("%s passed!\n", __FUNCTION__);
 }
 
 int main(int argc, char const *argv[])
@@ -96,8 +97,8 @@ int main(int argc, char const *argv[])
   SequentialHashMap seq_map2 = SequentialHashMap(numBuckets);
   ConcurrentHashMapBucketLock map1 = ConcurrentHashMapBucketLock(numBuckets);
   ConcurrentHashMapBucketLock map2 = ConcurrentHashMapBucketLock(numBuckets);
-  // ConcurrentHashMapTransactionalMemory map3 = ConcurrentHashMapTransactionalMemory(numBuckets);
-  // ConcurrentHashMapTransactionalMemory map4 = ConcurrentHashMapTransactionalMemory(numBuckets);
+  ConcurrentHashMapTransactionalMemory map3 = ConcurrentHashMapTransactionalMemory(numBuckets);
+  ConcurrentHashMapTransactionalMemory map4 = ConcurrentHashMapTransactionalMemory(numBuckets);
 
   test_distinct_put_get(seq_map1);
   test_same_put_get(seq_map2);
@@ -105,8 +106,8 @@ int main(int argc, char const *argv[])
   test_distinct_put_get(map1);
   test_same_put_get(map2);
 
-  // test_distinct_put_get(map3);
-  // test_same_put_get(map4);
+  test_distinct_put_get(map3);
+  test_same_put_get(map4);
 
 
   return 0;

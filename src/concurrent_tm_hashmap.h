@@ -2,6 +2,7 @@
 #define _CONCURRENT_TM_HASHMAP_H
 
 #include <stdint.h>
+#include <immintrin.h>
 #include <vector>
 
 #include "concurrent_map.h"
@@ -9,6 +10,13 @@
 class ConcurrentHashMapTransactionalMemory : public ConcurrentMap
 {
 private:
+  void hle_lock(int* lock) {
+    while (__atomic_exchange_n(lock, 1, __ATOMIC_ACQUIRE|__ATOMIC_HLE_ACQUIRE))
+    _mm_pause(); /* Abort failed transaction */
+  }
+  void hle_unlock(int* lock) {
+    __atomic_store_n(lock, 0, __ATOMIC_RELEASE|__ATOMIC_HLE_RELEASE);
+  }
 
   class Node
   {
@@ -54,6 +62,7 @@ private:
   uint64_t numBuckets;
   uint64_t size;
   std::vector<Node*> buckets;
+  std::vector<int> bucketMutexes;
 
 public:
   ConcurrentHashMapTransactionalMemory(uint64_t numBuckets);
