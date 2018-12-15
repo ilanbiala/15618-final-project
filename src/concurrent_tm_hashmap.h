@@ -7,6 +7,7 @@
 
 #include "concurrent_map.h"
 
+
 class ConcurrentHashMapTransactionalMemory : public ConcurrentMap
 {
 private:

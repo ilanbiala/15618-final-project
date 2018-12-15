@@ -1,6 +1,6 @@
 CXX      := g++
-CXXFLAGS := -std=c++11 -pedantic-errors -Wall -Wextra -Werror -mrtm -g
-LDFLAGS  := -lbenchmark -lpthread -pthread
+CXXFLAGS := -std=c++17 -pedantic-errors -Wall -Wextra -Werror -mrtm -g
+LDFLAGS  := -lbenchmark -lpthread -lfolly -ldl -ldouble-conversion -lgflags -liberty -lglog -lunwind -lboost_system -lboost_filesystem -lboost_program_options -lssl -lcrypto
 BUILD    := ./build
 TEST_DIR  := $(BUILD)/tests
 BENCH_DIR  := $(BUILD)/bench

@@ -6,6 +6,8 @@
 #include "sequential_hashmap.h"
 #include "concurrent_hashmap.h"
 #include "concurrent_tm_hashmap.h"
+#include "folly_hashmap.h"
+#include "folly_atomic_hashmap.h"
 
 // #define DEBUG // uncomment this line to enable debugging
 
@@ -99,6 +101,11 @@ int main(int argc, char const *argv[])
   ConcurrentHashMapBucketLock map2 = ConcurrentHashMapBucketLock(numBuckets);
   ConcurrentHashMapTransactionalMemory map3 = ConcurrentHashMapTransactionalMemory(numBuckets);
   ConcurrentHashMapTransactionalMemory map4 = ConcurrentHashMapTransactionalMemory(numBuckets);
+  FollyHashMap map5 = FollyHashMap(numBuckets);
+  FollyHashMap map6 = FollyHashMap(numBuckets);
+  FollyAtomicHashMap map7 = FollyAtomicHashMap(TEST_SIZE);
+  FollyAtomicHashMap map8 = FollyAtomicHashMap(TEST_SIZE);
+
 
   test_distinct_put_get(seq_map1);
   test_same_put_get(seq_map2);
@@ -109,6 +116,11 @@ int main(int argc, char const *argv[])
   test_distinct_put_get(map3);
   test_same_put_get(map4);
 
+  test_distinct_put_get(map5);
+  test_same_put_get(map6);
+
+  test_distinct_put_get(map7);
+  test_same_put_get(map8);
 
   return 0;
 }
