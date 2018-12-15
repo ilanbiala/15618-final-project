@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <immintrin.h>
 #include <vector>
+#include <atomic>
 
 #include "concurrent_map.h"
 
@@ -61,10 +62,9 @@ private:
   };
 
   uint64_t numBuckets;
-  uint64_t size;
+  std::atomic<uint64_t> size;
   std::vector<Node*> buckets;
   std::vector<int> bucketMutexes;
-  pthread_mutex_t mux;
 
 public:
   ConcurrentHashMapTransactionalMemory(uint64_t numBuckets);

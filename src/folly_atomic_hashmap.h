@@ -16,7 +16,7 @@ folly::AtomicHashMap<uint64_t, uint64_t>* map;
 
 public:
   FollyAtomicHashMap(uint64_t numBuckets) {
-    map = new folly::AtomicHashMap<uint64_t, uint64_t>(numBuckets*2);
+    map = new folly::AtomicHashMap<uint64_t, uint64_t>(numBuckets);
   }
 
   ~FollyAtomicHashMap() {
@@ -31,7 +31,10 @@ public:
   }
 
   void put(uint64_t key, uint64_t value) {
-    map->insert(key,value);
+    auto ret = map->insert(key,value);
+    if (!ret.second) {
+      ret.first->second = value;
+    }
   }
   bool remove(uint64_t key) {
     map->erase(key);

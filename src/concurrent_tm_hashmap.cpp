@@ -13,7 +13,6 @@ ConcurrentHashMapTransactionalMemory::ConcurrentHashMapTransactionalMemory(uint6
   for (size_t i = 0; i < numBuckets; i++) {
     bucketMutexes[i] = 0;
   }
-  pthread_mutex_init(&mux, NULL);
 }
 
 ConcurrentHashMapTransactionalMemory::~ConcurrentHashMapTransactionalMemory()
@@ -53,9 +52,7 @@ void ConcurrentHashMapTransactionalMemory::put(uint64_t key, uint64_t value) {
   Node *newItem = new ConcurrentHashMapTransactionalMemory::Node(key, value, buckets[bucketIdx]);
   buckets[bucketIdx] = newItem;
   hle_unlock(&bucketMutexes[bucketIdx]);
-  pthread_mutex_lock(&mux);
   this->size++;
-  pthread_mutex_unlock(&mux);
 }
 
 bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key) {
@@ -72,9 +69,7 @@ bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key) {
     buckets[bucketIdx] = last->getNext();
     hle_unlock(&bucketMutexes[bucketIdx]);
     delete last;
-    pthread_mutex_lock(&mux);
     this->size--;
-    pthread_mutex_unlock(&mux);
 
     return true;
   }
@@ -84,9 +79,7 @@ bool ConcurrentHashMapTransactionalMemory::remove(uint64_t key) {
       last->setNext(curr->getNext());
       hle_unlock(&bucketMutexes[bucketIdx]);
       delete curr;
-      pthread_mutex_lock(&mux);
       this->size--;
-      pthread_mutex_unlock(&mux);
       return true;
     }
     last = curr;
@@ -117,7 +110,7 @@ uint64_t ConcurrentHashMapTransactionalMemory::getSize(void) {
 }
 
 void ConcurrentHashMapTransactionalMemory::dbg_print(void) {
-  printf("Printing out current state of HashMap (%lu elements, %lu buckets):\n", this->size, this->numBuckets);
+  printf("Printing out current state of HashMap (%lu elements, %lu buckets):\n", (uint64_t)this->size, this->numBuckets);
   printf("{\n");
 
   for (auto const& bucket: buckets) {

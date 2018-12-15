@@ -21,7 +21,7 @@ static void SingleReadForHLEArguments(benchmark::internal::Benchmark* b) {
     for (int numKeys = 1; numKeys <= 1; numKeys *= 2) {
       for (int mapType = 1; mapType <= 16; mapType *= 2) {
         for (int percentReads = 0; percentReads <= 100; percentReads += 25) {
-          b->Args({numBuckets, numKeys, mapType, percentReads});
+          b->Args({numBuckets, numKeys, mapType, percentReads, 0});
         }
       }
     }
@@ -29,11 +29,13 @@ static void SingleReadForHLEArguments(benchmark::internal::Benchmark* b) {
 }
 
 static void CustomArguments(benchmark::internal::Benchmark* b) {
-  for (int numBuckets = 2048; numBuckets <= 32768; numBuckets *= 4) {
-    for (int numKeys = numBuckets/512; numKeys <= numBuckets; numKeys *= 16) {
+  for (int numKeys = 16; numKeys <= 65536; numKeys *= 16) {
+    for (int loadFactorInc20 = 1; loadFactorInc20 <= 5; loadFactorInc20++) {
       for (int percentReads = 0; percentReads <= 100; percentReads += 25) {
         for (int mapType = 1; mapType <= 16; mapType *= 2) {
-          b->Args({numBuckets, numKeys, mapType, percentReads});
+          double loadFactor = (((double)loadFactorInc20) / 5);
+          int numBuckets = numKeys / loadFactor;
+          b->Args({numBuckets, numKeys, mapType, percentReads, (long)(loadFactor*100)});
         }
       }
     }

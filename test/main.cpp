@@ -103,8 +103,8 @@ int main(int argc, char const *argv[])
   ConcurrentHashMapTransactionalMemory map4 = ConcurrentHashMapTransactionalMemory(numBuckets);
   FollyHashMap map5 = FollyHashMap(numBuckets);
   FollyHashMap map6 = FollyHashMap(numBuckets);
-  FollyAtomicHashMap map7 = FollyAtomicHashMap(TEST_SIZE);
-  FollyAtomicHashMap map8 = FollyAtomicHashMap(TEST_SIZE);
+  FollyAtomicHashMap map7 = FollyAtomicHashMap(TEST_SIZE*10); // folly atomic tombstones removed elements
+  FollyAtomicHashMap map8 = FollyAtomicHashMap(TEST_SIZE*10);
 
 
   test_distinct_put_get(seq_map1);
