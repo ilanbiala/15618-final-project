@@ -1,0 +1,25 @@
+import plotly
+import plotly.io as pio
+import plotly.graph_objs as go
+
+data = [go.Bar(
+    x=['1 Thread', '2 Threads', '4 Threads', '8 Threads', '16 Threads', '32 Threads'],
+    y=[0.001405002246,0.003917587421,0.003364274974,0.004031758311,0.5005437487,0.7274744228],
+    name='Transactional memory (HLE) abort percentage'
+)]
+
+layout = go.Layout(
+    title="numElements=65536, loadFactor=1.0, percentReads=75",
+    xaxis=dict(
+      title='Number of threads'
+    ),
+    yaxis=dict(
+        type='log',
+        autorange=True,
+        title='Percentage of aborted transactions'
+    )
+)
+
+fig = go.Figure(data=data, layout=layout)
+
+pio.write_image(fig, 'tx_aborts.png')
