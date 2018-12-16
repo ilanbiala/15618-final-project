@@ -64,22 +64,6 @@ public:
   // 3rd arg is % reads, 4th arg is loadFactor and is just for data processing pipeline
   void SetUp(benchmark::State& state) {
     if (state.thread_index == 0) {
-      // if (map_ptr != NULL) {
-      //   if (mapType == SEQUENTIAL) {
-      //     delete (SequentialHashMap*) map_ptr;
-      //   } else if (mapType == CONCURRENT) {
-      //     delete (ConcurrentHashMapBucketLock*) map_ptr;
-      //   } else if (mapType == CONCURRENT_TM) {
-      //     delete (ConcurrentHashMapTransactionalMemory*) map_ptr;
-      //   } else if (mapType == FOLLY) {
-      //     delete (FollyHashMap*) map_ptr;
-      //   } else if (mapType == FOLLY_ATOMIC) {
-      //     delete (FollyAtomicHashMap*) map_ptr;
-      //   } else {
-      //     printf("ERROR: invalid map type %ld\n", mapType);
-      //     exit(1);
-      //   }
-      // }
       numBuckets = state.range(0);
       numKeys = state.range(1);
       mapType = state.range(2);
