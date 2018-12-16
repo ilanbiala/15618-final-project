@@ -30,7 +30,7 @@ static void SingleReadForHLEArguments(benchmark::internal::Benchmark* b) {
 }
 
 static void CustomArguments(benchmark::internal::Benchmark* b) {
-  for (int numKeys = 16; numKeys <= 65536; numKeys *= 16) {
+  for (int numKeys = 1; numKeys <= 65536; numKeys *= 16) {
     for (int loadFactorInc20 = 1; loadFactorInc20 <= 5; loadFactorInc20++) {
       for (int percentReads = 0; percentReads <= 100; percentReads += 25) {
         for (int mapType = 1; mapType <= 16; mapType *= 2) {
@@ -143,38 +143,6 @@ BENCHMARK_REGISTER_F(HashMapFixture, SingleReadForHLE)
   ->Threads(8);
 
 BENCHMARK_REGISTER_F(HashMapFixture, SingleReadForHLE)
-  ->Apply(SingleReadForHLEArguments)
-  ->UseRealTime()
-  ->Threads(64);
-
-BENCHMARK_DEFINE_F(HashMapFixture, SingleElementForHLE)(benchmark::State& state) {
-  uint64_t chance = 0;
-  auto rng = std::default_random_engine {};
-  // Seed based on thread index so each thread gets a different generator
-  rng.seed(state.thread_index);
-  std::uniform_int_distribution<uint64_t> readChance(0, 100);
-
-  // Initialize local_keys to have 1 key
-  std::vector<uint64_t> local_keys(numKeys);
-  std::iota(std::begin(local_keys), std::end(local_keys), 0);
-
-  for (auto _ : state) {
-    chance = readChance(rng);
-
-    if (chance <= percentReads) {
-      benchmark::DoNotOptimize(map_ptr->get(k));
-    } else {
-      map_ptr->put(k, state.thread_index);
-    }
-  }
-}
-
-BENCHMARK_REGISTER_F(HashMapFixture, SingleElementForHLE)
-  ->Apply(SingleReadForHLEArguments)
-  ->UseRealTime()
-  ->Threads(8);
-
-BENCHMARK_REGISTER_F(HashMapFixture, SingleElementForHLE)
   ->Apply(SingleReadForHLEArguments)
   ->UseRealTime()
   ->Threads(64);
