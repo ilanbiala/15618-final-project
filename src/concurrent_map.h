@@ -10,7 +10,7 @@ private:
 
 public:
   ConcurrentMap() {}
-
+  
   uint64_t hash(uint64_t key) {
     uint64_t hashVal = key;
 
